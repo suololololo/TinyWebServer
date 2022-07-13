@@ -2,7 +2,7 @@
 #define __MUTEXT_H__
 #include "noncopyable.h"
 #include <pthread.h>
-
+#include <memory>
 class MutexLock : NonCopyAble
 {
 public:

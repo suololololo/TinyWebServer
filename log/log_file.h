@@ -1,8 +1,8 @@
 #ifndef __LOG_FILE_H__
 #define __LOG_FILE_H__
 
-#include "util/noncopyable.h"
-#include "util/mutex.h"
+#include "../util/noncopyable.h"
+#include "../util/mutex.h"
 #include "file_util.h"
 #include <stdio.h>
 class LogFile : NonCopyAble

@@ -1,6 +1,6 @@
 #ifndef __FILE_UTIL_H__
 #define __FILE_UTIL_H__
-#include "util/noncopyable.h"
+#include "../util/noncopyable.h"
 #include <memory>
 class FileUtil : NonCopyAble
 {
