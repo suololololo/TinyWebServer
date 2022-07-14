@@ -5,7 +5,7 @@
 static pthread_once_t once_control_ = PTHREAD_ONCE_INIT;
 static AsyncLogging *AsyncLogger_;
 // const char * Logger::logfilename = "./WebServer.log";
-const char * Logger::logfilename = "/home/jiajun/TinyWebServer/1.log";
+const char * Logger::logfilename = "./1.log";
 void once_init()
 {
     AsyncLogger_ = new AsyncLogging(Logger::get_log_filename());

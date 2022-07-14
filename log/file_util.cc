@@ -2,7 +2,7 @@
 
 FileUtil::FileUtil(const char *logdir)
 {
-    f_ = fopen(logdir, "aw");
+    f_ = fopen(logdir, "ae");
     setbuffer(f_, buf, sizeof(buf));
 }
 
