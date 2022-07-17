@@ -16,8 +16,8 @@ public:
     ~EventLoop();
     void loop();
     void updateChannel(Channel::ptr request);
-    bool isInLoopThread(){return CurrentThread::tid() == threadId_;} // 是否io线程本身 
-    void assertInLoopThread() {assert(isInLoopThread());}
+    bool isInLoopThread() { return CurrentThread::tid() == threadId_; } // 是否io线程本身
+    void assertInLoopThread() { assert(isInLoopThread()); }
     void wakeup();
     void quit();
     void runInLoop(const Functor &cb)
@@ -40,6 +40,11 @@ public:
         {
             wakeup();
         }
+    }
+
+    void addToPoller(Channel::ptr channel, int timeout = 0)
+    {
+        epoller_->epoll_add(channel, timeout);
     }
 
 private:

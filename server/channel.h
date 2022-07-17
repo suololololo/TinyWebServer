@@ -12,7 +12,7 @@ class Channel : NonCopyAble
 public:
     typedef std::function<void()> Callback;
     typedef std::shared_ptr<Channel> ptr;
-    explicit Channel(int fd);
+    explicit Channel(EventLoop *loop);
     Channel(EventLoop *loop, int fd);
     void handleEvent(); // 被 EventLoop->loop() 调用 根据revents 调用相应的回调函数
     void setReadCallback(const Callback &cb) { readCallback_ = cb; }
@@ -30,7 +30,16 @@ public:
         HttpData::ptr ret(holder_.lock());
         return ret;
     }
-
+    EventLoop *ownerLoop() {return loop_;}
+    void handleRead();
+    void handleWrite();
+    void handleConn();
+    bool equalAndUpdateLastEvents()
+    {
+        bool ret = (lastEvents_ == events_);
+        lastEvents_ = events_;
+        return ret;
+    }
 private:
     void update();
 

@@ -1,8 +1,13 @@
 #include "epoller.h"
 #include "../log/logging.h"
 #include "httpdata.h"
+
+const int EVENTSNUM = 4096;
 Epoller::Epoller()
+    : epollfd_(epoll_create1(EPOLL_CLOEXEC)),
+      events_(EVENTSNUM)
 {
+    assert(epollfd_ > 0);
 }
 Epoller::~Epoller()
 {
@@ -63,11 +68,25 @@ void Epoller::epollDel(Channel::ptr request)
     Channel::ptr chan = fd2chan_[fd];
     if (chan)
     {
-        fd2chan_[fd] = NULL;
+        fd2chan_[fd].reset();
     }
 }
-void Epoller::epollMod(Channel::ptr, int timeout)
+void Epoller::epollMod(Channel::ptr request, int timeout)
 {
+    if (timeout > 0)
+        addTimer(request, timeout);
+    int fd = request->getFd();
+    if (!request->equalAndUpdateLastEvents())
+    {
+        struct epoll_event event;
+        event.data.fd = fd;
+        event.events = request->getEvent();
+        if (epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &event) < 0)
+        {
+            perror("epoll mod error");
+            fd2chan_[fd].reset();
+        }
+    }
 }
 
 void Epoller::addTimer(Channel::ptr request, int timeout)
