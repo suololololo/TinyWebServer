@@ -102,7 +102,7 @@ public:
         }
         return *this;
     }
-    LogStream &operator<<(const void *v);
+    // LogStream &operator<<(const void *v);
     LogStream &operator<<(const std::string &v)
     {
         buffer_.Append(v.c_str(), v.length());

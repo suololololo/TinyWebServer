@@ -1,3 +1,8 @@
+/*
+ * @Author: jiajun
+ * @Date: 2022-07-13 21:17:24
+ * @FilePath: /TinyWebServer/log/logging.cc
+ */
 #include "logging.h"
 #include "async_logging.h"
 #include <sys/time.h>
@@ -26,7 +31,7 @@ Logger::~Logger()
     impl_.stream_ << " -- " << impl_.basename_ << ':' << impl_.line_ << '\n';
     const FixBuffer<kSmallBuffer> &buf(stream().buffer());
     output(buf.get_data(), buf.length());
-    std::cout  << "here" << std::endl;
+    // std::cout  << "here" << std::endl;
 }
 
 Logger::Impl::Impl(const char *filename, int line) : basename_(filename), line_(line)

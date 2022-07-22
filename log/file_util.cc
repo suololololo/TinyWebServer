@@ -1,8 +1,13 @@
+/*
+ * @Author: jiajun
+ * @Date: 2022-07-12 16:14:07
+ * @FilePath: /TinyWebServer/log/file_util.cc
+ */
 #include "file_util.h"
 
 FileUtil::FileUtil(const char *logdir)
 {
-    f_ = fopen(logdir, "ae");
+    f_ = fopen(logdir, "w");
     setbuffer(f_, buf, sizeof(buf));
 }
 
