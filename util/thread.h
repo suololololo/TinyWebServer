@@ -1,3 +1,8 @@
+/*
+ * @Author: jiajun
+ * @Date: 2022-07-13 16:02:28
+ * @FilePath: /TinyWebServer/util/thread.h
+ */
 #ifndef __THREAD_H__
 #define __THREAD_H__
 

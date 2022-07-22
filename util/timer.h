@@ -33,6 +33,8 @@ struct TimerCmp
 class Timer
 {
 public:
+    typedef std::shared_ptr<Timer> ptr;
+
     Timer();
     ~Timer();
     void trick();
