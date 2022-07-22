@@ -1,6 +1,11 @@
-#include "eventloopthreadpool.h"
-#include "../log/logging.h"
-#include "eventloopthread.h"
+/*
+ * @Author: jiajun
+ * @Date: 2022-07-16 15:49:44
+ * @FilePath: /TinyWebServer/server/eventloopthreadpool.cc
+ */
+#include "server/eventloopthreadpool.h"
+#include "log/logging.h"
+#include "server/eventloopthread.h"
 #include <assert.h>
 EventLoopThreadPool::EventLoopThreadPool(int thread_num, EventLoop *baseLoop)
     : baseLoop_(baseLoop),
@@ -25,7 +30,7 @@ void EventLoopThreadPool::start()
     started_ = true;
     for (int i = 0; i < numThreads_; ++i)
     {
-        EventLoopThread::ptr t(new EventLoopThread);
+        EventLoopThread::ptr t(new EventLoopThread());
         threads_.push_back(t);
         loops_.push_back(t->startLoop());
     }

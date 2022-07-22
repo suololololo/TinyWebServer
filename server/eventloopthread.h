@@ -1,9 +1,14 @@
+/*
+ * @Author: jiajun
+ * @Date: 2022-07-16 15:18:50
+ * @FilePath: /TinyWebServer/server/eventloopthread.h
+ */
 #ifndef __EVENT_LOOP_THREAD_H__
 #define __EVENT_LOOP_THREAD_H__
-#include "eventloop.h"
-#include "../util/condition.h"
-#include "../util/thread.h"
-#include "../util/noncopyable.h"
+#include "server/eventloop.h"
+#include "util/condition.h"
+#include "util/thread.h"
+#include "util/noncopyable.h"
 class EventLoopThread : NonCopyAble
 {
 public:

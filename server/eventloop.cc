@@ -1,9 +1,12 @@
-#include "eventloop.h"
-#include "../log/logging.h"
-#include "../util/util.h"
+#include "server/eventloop.h"
+#include "server/epoller.h"
+#include "log/logging.h"
+#include "util/util.h"
 #include <pthread.h>
 #include <sys/eventfd.h>
-
+#include <iostream>
+#include <unistd.h>
+// __thread EventLoop *t_loopInThisThread = 0;
 int createEventfd()
 {
     int evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
@@ -26,11 +29,25 @@ EventLoop::EventLoop()
       mutex_(),
       wakeupChannel_(new Channel(this, wakeupFd_))
 {
+    // if (t_loopInThisThread)
+    // {
+    // }
+    // else
+    // {
+    //     t_loopInThisThread = this;
+    // }
+
+    wakeupChannel_->setEvent(EPOLLIN | EPOLLET);
+    wakeupChannel_->setReadCallback(std::bind(&EventLoop::handleRead, this));
+    wakeupChannel_->setConnCallback(std::bind(&EventLoop::handleConn, this));
+    epoller_->epollAdd(wakeupChannel_, 0);
 }
 EventLoop::~EventLoop()
 {
     assert(!quit_);
     quit();
+    // t_loopInThisThread = NULL;
+    close(wakeupFd_);
 }
 void EventLoop::loop()
 {
@@ -43,21 +60,24 @@ void EventLoop::loop()
     while (!quit_)
     {
         activeChannel.clear();
-        activeChannel = epoller_->epoll(-1);
+        activeChannel = epoller_->epoll();
         eventHandling_ = true;
         for (auto &it : activeChannel)
         {
+            // LOG << "Thread id is " << threadId_ << " active event is " << it->getRevent() << " fd is " << it->getFd();
             it->handleEvent();
         }
         eventHandling_ = false;
         doPendingFunctors();
         epoller_->handleExpired();
     }
+    looping_ = false;
 }
 void EventLoop::updateChannel(Channel::ptr channel)
 {
     assert(channel->ownerLoop() == this);
     assertInLoopThread();
+
     epoller_->updateChannel(channel);
 }
 
@@ -85,6 +105,7 @@ void EventLoop::doPendingFunctors()
     for (size_t i = 0; i < functors.size(); ++i)
     {
         functors[i]();
+
     }
     callingPendingFunctors_ = false;
 }
@@ -100,7 +121,23 @@ void EventLoop::quit()
 
 void EventLoop::abortNotInLoopThread()
 {
-  LOG << "EventLoop::abortNotInLoopThread - EventLoop " << this
-            << " was created in threadId_ = " << threadId_
-            << ", current thread id = " <<  CurrentThread::tid();
+    LOG << "EventLoop::abortNotInLoopThread - EventLoop " << this
+        << " was created in threadId_ = " << threadId_
+        << ", current thread id = " << CurrentThread::tid();
+}
+
+void EventLoop::handleRead()
+{
+    uint64_t one = 1;
+    ssize_t n = readn(wakeupFd_, &one, sizeof(one));
+    if (n != sizeof(one))
+    {
+        LOG << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+    }
+    wakeupChannel_->setEvent(EPOLLIN | EPOLLET);
+}
+
+void EventLoop::handleConn()
+{
+    epoller_->epollMod(wakeupChannel_, 0);
 }

@@ -1,36 +1,46 @@
+/*
+ * @Author: jiajun
+ * @Date: 2022-07-15 11:28:22
+ * @FilePath: /TinyWebServer/server/channel.h
+ */
 #ifndef __CHANNEL_H__
 #define __CHANNEL_H__
 
-#include "eventloop.h"
-#include "../util/noncopyable.h"
-#include "httpdata.h"
+// #include "server/eventloop.h"
+#include "util/noncopyable.h"
+// #include "server/httpdata.h"
 #include <functional>
 #include <memory>
+class HttpData;
+class EventLoop;
 class Channel : NonCopyAble
 {
     // 为一个文件描述符绑定回调函数
 public:
     typedef std::function<void()> Callback;
     typedef std::shared_ptr<Channel> ptr;
+public:
     explicit Channel(EventLoop *loop);
     Channel(EventLoop *loop, int fd);
     void handleEvent(); // 被 EventLoop->loop() 调用 根据revents 调用相应的回调函数
-    void setReadCallback(const Callback &cb) { readCallback_ = cb; }
-    void setWriteCallback(const Callback &cb) { writeCallback_ = cb; }
-    void setErrorCallback(const Callback &cb) { errorCallback_ = cb; }
-    void setConnCallback(const Callback &cb) { connCallback_ = cb; }
+    void setReadCallback( Callback &&cb) { readCallback_ = cb; }
+    void setWriteCallback( Callback &&cb) { writeCallback_ = cb; }
+    void setErrorCallback( Callback &&cb) { errorCallback_ = cb; }
+    void setConnCallback( Callback &&cb) { connCallback_ = cb; }
     int getFd() const { return fd_; }
-    __uint32_t getEvent() const { return events_; }
+    __uint32_t &getEvent() { return events_; }
     __uint32_t getRevent() const { return revents_; }
+    __uint32_t getLastEvent() {return lastEvents_;}
     void setFd(int fd) { fd_ = fd; }
     void setEvent(__uint32_t events) { events_ = events; }
     void setRevent(__uint32_t revents) { revents_ = revents; }
-    HttpData::ptr getHolder()
+    std::shared_ptr<HttpData> getHolder()
     {
-        HttpData::ptr ret(holder_.lock());
+        std::shared_ptr<HttpData> ret(holder_.lock());
         return ret;
     }
-    EventLoop *ownerLoop() {return loop_;}
+    void setHolder(std::shared_ptr<HttpData> holder) { holder_ = holder; }
+    EventLoop *ownerLoop() { return loop_; }
     void handleRead();
     void handleWrite();
     void handleConn();
@@ -40,6 +50,7 @@ public:
         lastEvents_ = events_;
         return ret;
     }
+
 private:
     void update();
 

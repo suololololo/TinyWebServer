@@ -1,10 +1,16 @@
-#ifndef __EPOLLER_H__
-#define __EPOLLER_H__
-#include "eventloop.h"
-#include "../util/timer.h"
-#include "channel.h"
-#include <sys/epoll.h>
+/*
+ * @Author: jiajun
+ * @Date: 2022-07-15 16:32:23
+ * @FilePath: /TinyWebServer/server/epoller.h
+ */
+#ifndef __MYEPOLLER_H__
+#define __MYEPOLLER_H__
+#include "server/channel.h"
 
+#include "util/timer.h"
+
+#include <sys/epoll.h>
+class EventLoop;
 class Epoller
 {
     // 供 eventLoop 调用
@@ -14,7 +20,7 @@ public:
 
     Epoller();
     ~Epoller();
-    std::vector<Channel::ptr> epoll(int timeouts); //接口
+    std::vector<Channel::ptr> epoll(); //接口
     std::vector<Channel::ptr> getActiveEvents(int event_count);
     void epollAdd(Channel::ptr request, int timeout);
     void epollDel(Channel::ptr request);
@@ -30,6 +36,7 @@ private:
     Timer timer_;
     std::vector<epoll_event> events_;
     Channel::ptr fd2chan_[MAX_FD];
+    std::shared_ptr<HttpData> fd2http_[MAX_FD];
 };
 
 #endif
